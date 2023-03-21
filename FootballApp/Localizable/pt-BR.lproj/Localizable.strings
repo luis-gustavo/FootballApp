@@ -1,0 +1,12 @@
+/* 
+  Localizable.strings
+  FootballApp
+
+  Created by Luis Gustavo on 21/03/23.
+  
+*/
+
+"HIGHLIGHTS" = "Destaques";
+"MATCHES" = "Partidas";
+"PREVIOUS" = "Anteriores";
+"UPCOMING" = "Próximas";

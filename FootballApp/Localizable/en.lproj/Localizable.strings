@@ -6,7 +6,10 @@
   
 */
 
+"ERROR" = "Error";
 "HIGHLIGHTS" = "Highlights";
 "MATCHES" = "Matches";
+"OK" = "Ok";
 "PREVIOUS" = "Previous";
+"SEARCH" = "Search";
 "UPCOMING" = "Upcoming";

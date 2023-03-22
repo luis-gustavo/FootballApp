@@ -10,7 +10,7 @@ import UIKit
 final class DateHeaderView: UIView {
 
     // MARK: - UI Properties
-    private let dateLabel: UILabel = {
+    private(set) lazy var dateLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 14, weight: .regular)
         label.textColor = .label
@@ -44,7 +44,6 @@ extension DateHeaderView: ViewCodable {
     }
 
     func setupConstraints() {
-
         let margin: CGFloat = 8
 
         NSLayoutConstraint.activate([

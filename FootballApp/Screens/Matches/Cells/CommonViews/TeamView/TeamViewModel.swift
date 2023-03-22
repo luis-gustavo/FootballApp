@@ -25,6 +25,7 @@ final class TeamViewModel {
     let status: TeamViewModel.Status
     @Published private(set) var data: Data?
     @Published private(set) var state: State = .loading
+    private(set) var tappedTeamDetail = PassthroughSubject<String, Never>()
     private let imageUrl: URL?
     private let imageLoader: ImageLoaderProtocol = DIContainer.make(for: ImageLoaderProtocol.self)
     private var bindings = Set<AnyCancellable>()
@@ -43,6 +44,10 @@ final class TeamViewModel {
 
 // MARK: - Internal methods
 extension TeamViewModel {
+    func showTeamDetail() {
+        tappedTeamDetail.send(title)
+    }
+
     func fetchImage() {
         guard let url = imageUrl else { return }
         state = .loading

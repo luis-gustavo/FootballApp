@@ -15,13 +15,13 @@ final class TeamView: UIView {
     private var viewModel: TeamViewModel?
 
     // MARK: - UI Properties
-    private lazy var activityIndicatorView: UIActivityIndicatorView = {
-        let view = UIActivityIndicatorView(style: .large)
+    private(set) lazy var activityIndicatorView: UIActivityIndicatorView = {
+        let view = UIActivityIndicatorView(style: .medium)
         view.hidesWhenStopped = true
         return view
     }()
 
-    private let imageView: UIImageView = {
+    private(set) lazy var imageView: UIImageView = {
         let view = UIImageView()
         view.contentMode = .scaleAspectFill
         view.roundCorners(radius: 30)
@@ -30,13 +30,21 @@ final class TeamView: UIView {
         return view
     }()
 
-    private let titleLabel: UILabel = {
+    private(set) lazy var titleLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 18, weight: .semibold)
         label.textColor = .label
         label.textAlignment = .center
         label.numberOfLines = 0
         return label
+    }()
+
+    private lazy var invisibleButton: UIButton = {
+        let button = UIButton()
+        button.addAction(UIAction { [weak self] _ in
+            self?.viewModel?.showTeamDetail()
+        }, for: .touchUpInside)
+        return button
     }()
 
     // MARK: - Inits
@@ -56,7 +64,8 @@ extension TeamView: ViewCodable {
         addSubviews(
             imageView,
             activityIndicatorView,
-            titleLabel
+            titleLabel,
+            invisibleButton
         )
     }
 
@@ -74,7 +83,12 @@ extension TeamView: ViewCodable {
 
             titleLabel.topAnchor.constraint(equalTo: imageView.bottomAnchor),
             titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
-            titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor)
+            titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
+
+            invisibleButton.topAnchor.constraint(equalTo: imageView.topAnchor),
+            invisibleButton.bottomAnchor.constraint(equalTo: titleLabel.bottomAnchor),
+            invisibleButton.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
+            invisibleButton.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor)
         ])
     }
 

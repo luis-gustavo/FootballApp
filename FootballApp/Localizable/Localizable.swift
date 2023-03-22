@@ -9,19 +9,28 @@ import Foundation
 
 enum Localizable {
 
-    case highlights,
+    case error,
+         highlights,
          matches,
+         ok,
          previous,
+         search,
          upcoming
 
     var localized: String {
         switch self {
+        case .error:
+            return "ERROR".localize()
         case .highlights:
             return "HIGHLIGHTS".localize()
         case .matches:
             return "MATCHES".localize()
+        case .ok:
+            return "OK".localize()
         case .previous:
             return "PREVIOUS".localize()
+        case .search:
+            return "SEARCH".localize()
         case .upcoming:
             return "UPCOMING".localize()
         }

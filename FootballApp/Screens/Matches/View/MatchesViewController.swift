@@ -5,6 +5,7 @@
 //  Created by Luis Gustavo on 21/03/23.
 //
 
+import CoreData
 import Combine
 import UIKit
 
@@ -22,11 +23,15 @@ final class MatchesViewController: UIViewController {
     // MARK: - UI Properties
     private lazy var matchesView: MatchesView = {
         let view = MatchesView()
+        view.searchBar.delegate = self
+        view.searchBar.searchTextField.delegate = self
         return view
     }()
 
+    private let appDelegate = UIApplication.shared.delegate as! AppDelegate
+
     // MARK: - Inits
-    init(viewModel: MatchesViewModel = MatchesViewModel()) {
+    init(viewModel: MatchesViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
@@ -54,15 +59,7 @@ final class MatchesViewController: UIViewController {
 private extension MatchesViewController {
     private func setUpBindings() {
         func bindViewModelToView() {
-            viewModel.$previousMatches
-                .receive(on: RunLoop.main)
-                .sink { [weak self] _ in
-                    self?.updateSections()
-                }
-                .store(in: &bindings)
-
-            viewModel.$upcomingMatches
-                .receive(on: RunLoop.main)
+            viewModel.matchesChanged
                 .sink { [weak self] _ in
                     self?.updateSections()
                 }
@@ -76,9 +73,9 @@ private extension MatchesViewController {
                     self?.matchesView.stopLoading()
                 case let .error(error):
                     print(error.localizedDescription)
+                    self?.matchesView.stopLoading()
+                    self?.viewModel.showError(error)
                     break
-//                    self?.contentView.finishLoading()
-//                    self?.showError(error)
                 }
             }
 
@@ -99,9 +96,9 @@ private extension MatchesViewController {
         sections.forEach { section in
             switch section {
             case .previous:
-                snapshot.appendItems(viewModel.previousMatches.map { .previous($0) }, toSection: section)
+                snapshot.appendItems(viewModel.filteredPreviousMatches.map { .previous($0) }, toSection: section)
             case .upcoming:
-                snapshot.appendItems(viewModel.upcomingMatches.map { .upcoming($0) }, toSection: section)
+                snapshot.appendItems(viewModel.filteredUpcomingMatches.map { .upcoming($0) }, toSection: section)
             }
         }
 
@@ -113,25 +110,10 @@ private extension MatchesViewController {
             collectionView: matchesView.collectionView,
             cellProvider: { (collectionView, indexPath, match) -> UICollectionViewCell? in
                 let cell = collectionView.dequeueReusableCell(
-                    withReuseIdentifier: UpcomingMatchCell.identifier,
+                    withReuseIdentifier: MatchCell.identifier,
                     for: indexPath
-                ) as? UpcomingMatchCell
-                let imagesUrls = self.viewModel.imagesUrls(for: match)
-                let viewModel = UpcomingMatchCellViewModel(
-                    dateHeaderViewModel: .init(
-                        date: match.dateFormatted
-                    ),
-                    homeViewModel: .init(
-                        title: match.homeTeam,
-                        imageUrl: imagesUrls.home,
-                        status: match.winner == nil ? .idle : match.winner == match.homeTeam ? .winner : .loser
-                    ),
-                    awayViewModel: .init(
-                        title: match.awayTeam,
-                        imageUrl: imagesUrls.away,
-                        status: match.winner == nil ? .idle : match.winner == match.awayTeam ? .winner : .loser
-                    )
-                )
+                ) as? MatchCell
+                let viewModel = self.viewModel.cellViewModel(for: match)
                 cell?.configure(with: viewModel)
                 return cell
             }
@@ -149,5 +131,36 @@ private extension MatchesViewController {
             view?.titleLabel.text = section.title
             return view
         }
+    }
+}
+
+// MARK: - UISearchBarDelegate
+extension MatchesViewController: UISearchBarDelegate {
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        viewModel.updateSearchText(searchText)
+    }
+
+    func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
+        searchBar.setShowsCancelButton(true, animated: true)
+    }
+
+    func searchBarShouldEndEditing(_ searchBar: UISearchBar) -> Bool {
+        searchBar.setShowsCancelButton(false, animated: true)
+        return true
+    }
+
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        searchBar.resignFirstResponder()
+        searchBar.text = ""
+        self.searchBar(searchBar, textDidChange: "")
+        viewModel.updateSearchText("")
+    }
+}
+
+// MARK: - UITextFieldDelegate
+extension MatchesViewController: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return false
     }
 }

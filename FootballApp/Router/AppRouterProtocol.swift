@@ -7,7 +7,7 @@
 
 import UIKit
 
-protocol AppRouterProtocol {
+protocol AppRouterProtocol: MatchesRouterProtocol {
     var rootViewController: UINavigationController { get set }
     func showMatches()
 }
@@ -15,7 +15,7 @@ protocol AppRouterProtocol {
 extension AppRouterProtocol {
     func showMatches() {
         rootViewController.navigationBar.prefersLargeTitles = true
-        let viewController = MatchesViewController()
+        let viewController = MatchesViewController(viewModel: .init(router: self))
         viewController.navigationItem.largeTitleDisplayMode = .automatic
         rootViewController.setViewControllers([viewController], animated: true)
     }

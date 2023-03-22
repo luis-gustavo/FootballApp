@@ -1,5 +1,5 @@
 //
-//  UpcomingMatchCell.swift
+//  MatchCell.swift
 //  FootballApp
 //
 //  Created by Luis Gustavo on 21/03/23.
@@ -7,10 +7,10 @@
 
 import UIKit
 
-final class UpcomingMatchCell: UICollectionViewCell {
+final class MatchCell: UICollectionViewCell {
 
     // MARK: - Properties
-    private var viewModel: UpcomingMatchCellViewModel?
+    private var viewModel: MatchCellViewModel?
 
     // MARK: - UI Properties
     private let dateHeader = DateHeaderView()
@@ -28,18 +28,8 @@ final class UpcomingMatchCell: UICollectionViewCell {
         return label
     }()
 
-    private lazy var watchHighlightButton: UIButton = {
-        let button = UIButton()
-        button.roundCorners(radius: 20)
-        button.setTitle(Localizable.highlights.localized, for: .normal)
-        button.backgroundColor = .systemBlue
-        button.setTitleColor(.label, for: .normal)
-        button.addAction(UIAction { [weak self] _ in
-            print(self)
-            print("TAP HERE")
-        }, for: .touchUpInside)
-        return button
-    }()
+    private let highlightFooterView = HighlightFooterView()
+    private var highlightFooterViewHeightConstraint: NSLayoutConstraint?
 
     // MARK: - Inits
     override init(frame: CGRect) {
@@ -51,17 +41,27 @@ final class UpcomingMatchCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
+    // MARK: - prepareForReuse
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        homeTeam.imageView.image = nil
+        homeTeam.titleLabel.text = nil
+        awayTeam.imageView.image = nil
+        awayTeam.titleLabel.text = nil
+        dateHeader.dateLabel.text = nil
+        highlightFooterViewHeightConstraint?.constant = 0
+    }
 }
 
 // MARK: - ViewCodable
-extension UpcomingMatchCell: ViewCodable {
+extension MatchCell: ViewCodable {
     func buildViewHierarchy() {
         contentView.addSubviews(
             dateHeader,
             homeTeam,
             awayTeam,
             versusLabel,
-            watchHighlightButton
+            highlightFooterView
         )
     }
 
@@ -77,21 +77,30 @@ extension UpcomingMatchCell: ViewCodable {
 
             homeTeam.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 8),
             homeTeam.trailingAnchor.constraint(equalTo: versusLabel.leadingAnchor, constant: -8),
-//            homeTeam.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8),
-            homeTeam.bottomAnchor.constraint(equalTo: watchHighlightButton.topAnchor, constant: -8),
+            homeTeam.bottomAnchor.constraint(equalTo: highlightFooterView.topAnchor, constant: -8),
             homeTeam.topAnchor.constraint(equalTo: dateHeader.bottomAnchor, constant: 8),
 
             awayTeam.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -8),
             awayTeam.leadingAnchor.constraint(equalTo: versusLabel.trailingAnchor, constant: 8),
-//            awayTeam.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8),
-            awayTeam.bottomAnchor.constraint(equalTo: watchHighlightButton.topAnchor, constant: -8),
+            awayTeam.bottomAnchor.constraint(equalTo: highlightFooterView.topAnchor, constant: -8),
             awayTeam.topAnchor.constraint(equalTo: dateHeader.bottomAnchor, constant: 8),
 
-            watchHighlightButton.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
-//            watchHighlightButton.heightAnchor.constraint(equalToConstant: 40),
-//            watchHighlightButton.widthAnchor.constraint(equalToConstant: 60),
-            watchHighlightButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8)
+            highlightFooterView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            highlightFooterView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            highlightFooterView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8),
+            highlightFooterView.heightAnchor.constraint(equalToConstant: 50)
         ])
+
+        highlightFooterViewHeightConstraint = .init(
+            item: highlightFooterView,
+            attribute: .height,
+            relatedBy: .equal,
+            toItem: nil,
+            attribute: .notAnAttribute,
+            multiplier: 1,
+            constant: 50
+        )
+        highlightFooterViewHeightConstraint?.isActive = true
     }
 
     func setupAdditionalConfiguration() {
@@ -101,11 +110,13 @@ extension UpcomingMatchCell: ViewCodable {
 }
 
 // MARK: - Internal methods
-extension UpcomingMatchCell {
-    func configure(with viewModel: UpcomingMatchCellViewModel) {
+extension MatchCell {
+    func configure(with viewModel: MatchCellViewModel) {
         self.viewModel = viewModel
         dateHeader.configure(with: viewModel.dateHeaderViewModel)
+        highlightFooterView.configure(with: viewModel.highlightFooterViewModel)
         homeTeam.configure(with: viewModel.homeViewModel)
         awayTeam.configure(with: viewModel.awayViewModel)
+        highlightFooterViewHeightConstraint?.constant = viewModel.showHighlight ? 50 : 0
     }
 }

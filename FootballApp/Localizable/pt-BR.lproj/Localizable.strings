@@ -6,7 +6,10 @@
   
 */
 
+"ERROR" = "Erro";
 "HIGHLIGHTS" = "Destaques";
 "MATCHES" = "Partidas";
+"OK" = "Ok";
 "PREVIOUS" = "Anteriores";
+"SEARCH" = "Pesquisar";
 "UPCOMING" = "Próximas";

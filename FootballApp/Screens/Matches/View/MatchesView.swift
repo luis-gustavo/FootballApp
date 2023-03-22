@@ -20,14 +20,24 @@ final class MatchesView: UIView {
             forCellWithReuseIdentifier: UICollectionViewCell.identifier
         )
         view.register(
-            UpcomingMatchCell.self,
-            forCellWithReuseIdentifier: UpcomingMatchCell.identifier
+            MatchCell.self,
+            forCellWithReuseIdentifier: MatchCell.identifier
         )
         view.register(
             SectionHeaderReusableView.self,
             forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
             withReuseIdentifier: SectionHeaderReusableView.identifier
         )
+        view.keyboardDismissMode = .onDrag
+        return view
+    }()
+
+    private(set) lazy var searchBar: UISearchBar = {
+        let view = UISearchBar()
+        view.autocorrectionType = .no
+        view.placeholder = Localizable.search.localized
+        view.showsCancelButton = true
+        view.returnKeyType = .search
         return view
     }()
 
@@ -54,19 +64,24 @@ extension MatchesView: ViewCodable {
     func buildViewHierarchy() {
         addSubviews(
             collectionView,
-            activityIndicatorView
+            activityIndicatorView,
+            searchBar
         )
     }
 
     func setupConstraints() {
         NSLayoutConstraint.activate([
+            searchBar.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor),
+            searchBar.leadingAnchor.constraint(equalTo: leadingAnchor),
+            searchBar.trailingAnchor.constraint(equalTo: trailingAnchor),
+
             activityIndicatorView.centerXAnchor.constraint(equalTo: centerXAnchor),
             activityIndicatorView.centerYAnchor.constraint(equalTo: centerYAnchor),
 
             collectionView.leadingAnchor.constraint(equalTo: leadingAnchor),
             collectionView.trailingAnchor.constraint(equalTo: trailingAnchor),
             collectionView.bottomAnchor.constraint(equalTo: bottomAnchor),
-            collectionView.topAnchor.constraint(equalTo: topAnchor)
+            collectionView.topAnchor.constraint(equalTo: searchBar.bottomAnchor)
         ])
     }
 
@@ -79,6 +94,10 @@ extension MatchesView: ViewCodable {
 extension MatchesView {
     func startLoading() {
         collectionView.isUserInteractionEnabled = false
+        collectionView.isHidden = true
+        UIView.animate(withDuration: 0.5) { [weak self] in
+            self?.collectionView.alpha = 0
+        }
 
         activityIndicatorView.isHidden = false
         activityIndicatorView.startAnimating()
@@ -86,6 +105,10 @@ extension MatchesView {
 
     func stopLoading() {
         collectionView.isUserInteractionEnabled = true
+        collectionView.isHidden = false
+        UIView.animate(withDuration: 0.5) { [weak self] in
+            self?.collectionView.alpha = 1
+        }
 
         activityIndicatorView.isHidden = true
     }

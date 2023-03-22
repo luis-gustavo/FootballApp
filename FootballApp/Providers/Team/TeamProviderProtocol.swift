@@ -8,6 +8,7 @@
 import Combine
 import Foundation
 import Networking
+import Models
 
 protocol TeamProviderProtocol {
     func getTeams() -> AnyPublisher<[Team], NetworkError>

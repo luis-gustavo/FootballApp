@@ -8,6 +8,7 @@
 import Combine
 import DIContainer
 import Foundation
+import Models
 import Networking
 
 struct TeamProvider: TeamProviderProtocol {

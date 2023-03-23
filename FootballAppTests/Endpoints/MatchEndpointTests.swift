@@ -17,7 +17,8 @@ final class MatchEndpointTests: XCTestCase {
         // When
 
         // Then
-        XCTAssertEqual(endpoint.url?.absoluteString, "https://jmde6xvjr4.execute-api.us-east-1.amazonaws.com/teams/matches")
+        XCTAssertEqual(endpoint.url?.absoluteString,
+                       "https://jmde6xvjr4.execute-api.us-east-1.amazonaws.com/teams/matches")
         XCTAssertEqual(endpoint.method, .get)
         XCTAssertTrue(endpoint.queryParameters.isEmpty)
         XCTAssertTrue(endpoint.headers.isEmpty)

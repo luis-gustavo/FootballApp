@@ -40,7 +40,7 @@ final class MatchesViewControllerTests: XCTestCase {
         sut = nil
     }
 
-    func testUILightMode()  {
+    func testUILightMode() {
         // Given
         let navigationController = UINavigationController(rootViewController: sut)
         navigationController.overrideUserInterfaceStyle = .light
@@ -53,7 +53,7 @@ final class MatchesViewControllerTests: XCTestCase {
         assertSnapshot(matching: sut.view, as: .wait(for: 1, on: .image))
     }
 
-    func testUIDarkMode()  {
+    func testUIDarkMode() {
         // Given
         let navigationController = UINavigationController(rootViewController: sut)
         navigationController.overrideUserInterfaceStyle = .dark

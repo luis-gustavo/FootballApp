@@ -18,12 +18,12 @@ public struct PreviousMatchObject: PreviousMatchObjectType {
 
     // MARK: - Properties
     public static var identifier: String = "PreviousMatchEntity"
-    var _managedObject: NSManagedObject!
+    private var internalManagedObject: NSManagedObject!
     public var managedObject: NSManagedObject {
         get {
-            return _managedObject
+            return internalManagedObject
         } set {
-            _managedObject = newValue
+            internalManagedObject = newValue
             fillModel(from: newValue)
         }
     }

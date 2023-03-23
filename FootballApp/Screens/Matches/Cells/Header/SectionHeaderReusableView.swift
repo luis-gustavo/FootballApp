@@ -50,7 +50,7 @@ extension SectionHeaderReusableView: ViewCodable {
           titleLabel.leadingAnchor.constraint(equalTo: readableContentGuide.leadingAnchor),
           titleLabel.trailingAnchor.constraint(lessThanOrEqualTo: readableContentGuide.trailingAnchor),
           titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 10),
-          titleLabel.bottomAnchor.constraint(equalTo: bottomAnchor,constant: -10)
+          titleLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10)
         ])
     }
 

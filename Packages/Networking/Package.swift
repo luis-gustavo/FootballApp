@@ -14,7 +14,7 @@ let package = Package(
         .library(
             name: "Networking",
             type: .dynamic,
-            targets: ["Networking"]),
+            targets: ["Networking"])
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
@@ -28,6 +28,6 @@ let package = Package(
             dependencies: []),
         .testTarget(
             name: "NetworkingTests",
-            dependencies: ["Networking"]),
+            dependencies: ["Networking"])
     ]
 )

@@ -19,7 +19,7 @@ final class MockTeamProvider: TeamProviderProtocol {
             .init(id: "1", name: "Team Cool Eagles", logo: "https://www.google.com"),
             .init(id: "2", name: "Team Red Dragons", logo: "https://www.google.com"),
             .init(id: "3", name: "Team Chill Elephants", logo: ""),
-            .init(id: "4", name: "Team Royal Knights", logo: ""),
+            .init(id: "4", name: "Team Royal Knights", logo: "")
         ]
         return Just(teams)
             .setFailureType(to: NetworkError.self)

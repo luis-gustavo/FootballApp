@@ -12,7 +12,7 @@ enum Localizable {
     case error,
          highlights,
          matches,
-         ok,
+         okMessage,
          previous,
          search,
          upcoming
@@ -25,7 +25,7 @@ enum Localizable {
             return "HIGHLIGHTS".localize()
         case .matches:
             return "MATCHES".localize()
-        case .ok:
+        case .okMessage:
             return "OK".localize()
         case .previous:
             return "PREVIOUS".localize()

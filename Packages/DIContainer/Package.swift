@@ -11,7 +11,7 @@ let package = Package(
         .library(
             name: "DIContainer",
             type: .dynamic,
-            targets: ["DIContainer"]),
+            targets: ["DIContainer"])
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
@@ -25,6 +25,6 @@ let package = Package(
             dependencies: []),
         .testTarget(
             name: "DIContainerTests",
-            dependencies: ["DIContainer"]),
+            dependencies: ["DIContainer"])
     ]
 )

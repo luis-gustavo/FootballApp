@@ -18,12 +18,12 @@ public struct UpcomingMatchObject: UpcomingMatchObjectType {
 
     // MARK: - Properties
     public static var identifier = "UpcomingMatchEntity"
-    var _managedObject: NSManagedObject!
+    private var internalManagedObject: NSManagedObject!
     public var managedObject: NSManagedObject {
         get {
-            return _managedObject
+            return internalManagedObject
         } set {
-            _managedObject = newValue
+            internalManagedObject = newValue
             fillModel(from: newValue)
         }
     }

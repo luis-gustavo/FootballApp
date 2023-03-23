@@ -152,7 +152,7 @@ private extension MatchesView {
         )
 
         section.interGroupSpacing = 16
-        
+
         return UICollectionViewCompositionalLayout(section: section)
     }
 }

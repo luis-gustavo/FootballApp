@@ -54,7 +54,7 @@ final class URLSessionNetworkingTests: XCTestCase {
                         XCTAssertEqual(error, .unableToCreateURL)
                         expectation.fulfill()
                     }
-                }) { _ in }
+                }, receiveValue: { _ in })
             .store(in: &bindinds)
 
         // Then

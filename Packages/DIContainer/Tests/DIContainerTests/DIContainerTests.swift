@@ -33,4 +33,3 @@ final class DIContainerTests: XCTestCase {
 private enum MockService {
     case one, two
 }
-

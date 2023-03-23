@@ -19,17 +19,22 @@ final class MatchesViewModel {
         guard !searchText.isEmpty else { return previousMatches }
         let lowerCasedSearchText = searchText.lowercased()
         return previousMatches
-            .filter { $0.home.lowercased().contains(lowerCasedSearchText) || $0.away.lowercased().contains(lowerCasedSearchText) }
+            .filter {
+                $0.home.lowercased().contains(lowerCasedSearchText)
+                || $0.away.lowercased().contains(lowerCasedSearchText)
+            }
     }
-    var filteredUpcomingMatches: [UpcomingMatch]  {
+    var filteredUpcomingMatches: [UpcomingMatch] {
         guard !searchText.isEmpty else { return upcomingMatches }
         let lowerCasedSearchText = searchText.lowercased()
         return upcomingMatches
-            .filter { $0.home.lowercased().contains(lowerCasedSearchText) || $0.away.lowercased().contains(lowerCasedSearchText) }
+            .filter { $0.home.lowercased().contains(lowerCasedSearchText) ||
+                $0.away.lowercased().contains(lowerCasedSearchText)
+            }
     }
-    private(set) var dataChanged = PassthroughSubject<Void, Never>()
     @Published private(set) var teams: [Team] = []
     @Published private(set) var state: MatchesViewModelState = .loading
+    private(set) var dataChanged = PassthroughSubject<Void, Never>()
     private var previousMatches: [PreviousMatch] = []
     private var upcomingMatches: [UpcomingMatch] = []
     private let storage: Storage = DIContainer.make(for: Storage.self)
@@ -57,7 +62,7 @@ final class MatchesViewModel {
 
 // MARK: - Internal methods
 extension MatchesViewModel {
-    func showError(_ error: Error){
+    func showError(_ error: Error) {
         router.showError(error)
     }
 
@@ -116,7 +121,13 @@ private extension MatchesViewModel {
     }
 
     func showTeamDetail(teamName: String) {
-        guard let team = teams.first(where: { $0.name.trimmingCharacters(in: .whitespacesAndNewlines) == teamName.trimmingCharacters(in: .whitespacesAndNewlines) }) else { return }
+        guard let team = teams.first(where: {
+            $0.name.trimmingCharacters(
+                in: .whitespacesAndNewlines
+            ) == teamName.trimmingCharacters(
+                in: .whitespacesAndNewlines
+            )
+        }) else { return }
         router.showTeamDetail(team: team)
     }
 

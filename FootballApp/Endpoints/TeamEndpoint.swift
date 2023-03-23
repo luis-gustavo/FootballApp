@@ -18,9 +18,9 @@ enum TeamEndpoint: EndPoint {
 
     var method: HTTPMethod { .get }
 
-    var headers: [String : String] { [:] }
+    var headers: [String: String] { [:] }
 
-    var queryParameters: [String : Any] { [:] }
+    var queryParameters: [String: Any] { [:] }
 
     var body: Data? { nil }
 }

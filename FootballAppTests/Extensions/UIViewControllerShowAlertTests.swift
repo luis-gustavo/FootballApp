@@ -17,7 +17,6 @@ final class UIViewControllerShowAlertTests: XCTestCase {
         window.rootViewController = viewController
         window.makeKeyAndVisible()
         viewController.loadViewIfNeeded()
-        UIApplication.shared.keyWindow?.rootViewController?.loadViewIfNeeded()
 
         // When
         viewController.showAlert(with: "", message: "", animated: false)

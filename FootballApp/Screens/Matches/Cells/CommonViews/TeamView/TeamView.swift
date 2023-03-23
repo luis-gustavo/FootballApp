@@ -102,7 +102,10 @@ extension TeamView {
     func configure(with viewModel: TeamViewModel) {
         self.viewModel = viewModel
         titleLabel.text = viewModel.title
-        imageView.layer.borderColor = (viewModel.status == .winner ? UIColor.systemGreen : viewModel.status == .loser ? .systemRed : .clear).cgColor
+        imageView.layer.borderColor = (
+            viewModel.status == .winner ? UIColor.systemGreen :
+                viewModel.status == .loser ? .systemRed : .clear
+        ).cgColor
         setUpBindings(viewModel: viewModel)
         viewModel.fetchImage()
     }
@@ -116,8 +119,6 @@ private extension TeamView {
                 .receive(on: RunLoop.main)
                 .sink { [weak self] data in
                     guard let data = data else { return }
-                    print("data: \(data)")
-                    print(self)
                     self?.imageView.image = UIImage(data: data)
                 }.store(in: &bindings)
 

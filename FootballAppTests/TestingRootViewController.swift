@@ -14,7 +14,6 @@ final class TestingRootViewController: UIViewController {
         label.text = "Running Unit Tests..."
         label.textAlignment = .center
         label.textColor = .white
-
         view = label
     }
 }

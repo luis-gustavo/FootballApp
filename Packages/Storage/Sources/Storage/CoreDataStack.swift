@@ -19,21 +19,19 @@ public final class CoreDataStack {
     let backgroundContext: NSManagedObjectContext
 
     private init() {
-        guard let modelURL = Bundle.module.url(forResource:"Storage", withExtension: "momd") else {
+        guard let modelURL = Bundle.module.url(forResource: "Storage", withExtension: "momd") else {
             fatalError("Unable to find storage")
         }
         guard let model = NSManagedObjectModel(contentsOf: modelURL) else {
             fatalError("Unable to create model")
         }
-        persistentContainer = PersistentContainer(name:"Storage", managedObjectModel: model)
+        persistentContainer = PersistentContainer(name: "Storage", managedObjectModel: model)
         let description = persistentContainer.persistentStoreDescriptions.first
         description?.type = NSSQLiteStoreType
 
-        persistentContainer.loadPersistentStores { description, error in
-
+        persistentContainer.loadPersistentStores { _, error in
             guard error == nil else {
                 fatalError("was unable to load store \(error!)")
-                // TODO: handle this error properly
             }
         }
 

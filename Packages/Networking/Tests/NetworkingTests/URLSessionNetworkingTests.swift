@@ -5,13 +5,15 @@
 //  Created by Luis Gustavo on 21/03/23.
 //
 
-import XCTest
+import Combine
 import Foundation
+import XCTest
 @testable import Networking
 
 final class URLSessionNetworkingTests: XCTestCase {
 
     private let mock = MockUrlSessionNetworking()
+    private var bindinds = Set<AnyCancellable>()
 
     func testSuccessfulRequest() {
         // Given
@@ -19,15 +21,19 @@ final class URLSessionNetworkingTests: XCTestCase {
         let endpoint = MockEndpoint.correct
 
         // When
-        mock.request(endPoint: endpoint) { result in
-            switch result {
-            case let .success(response):
+        mock.request(endPoint: endpoint)
+            .sink(receiveCompletion: { completion in
+                switch completion {
+                case .failure:
+                    XCTFail("It shouldn't fail")
+                default:
+                    break
+                }
+            }, receiveValue: { response in
                 XCTAssertEqual(endpoint.createRequest(), response.request)
                 expectation.fulfill()
-            case .failure:
-                XCTFail("It shouldn't fail")
-            }
-        }
+            })
+            .store(in: &bindinds)
 
         // Then
         wait(for: [expectation], timeout: 1)
@@ -39,15 +45,17 @@ final class URLSessionNetworkingTests: XCTestCase {
         let endpoint = MockEndpoint.wrong
 
         // When
-        mock.request(endPoint: endpoint) { result in
-            switch result {
-            case . success:
-                XCTFail("It should generate an error fail")
-            case let .failure(error):
-                XCTAssertEqual(error, .unableToCreateURL)
-                expectation.fulfill()
-            }
-        }
+        mock.request(endPoint: endpoint)
+            .sink(receiveCompletion: { completion in
+                    switch completion {
+                    case .finished:
+                        XCTFail("It should generate an error fail")
+                    case let .failure(error):
+                        XCTAssertEqual(error, .unableToCreateURL)
+                        expectation.fulfill()
+                    }
+                }) { _ in }
+            .store(in: &bindinds)
 
         // Then
         wait(for: [expectation], timeout: 1)
@@ -55,19 +63,20 @@ final class URLSessionNetworkingTests: XCTestCase {
 }
 
 private final class MockUrlSessionNetworking: URLSessionNetworkingProtocol {
-    func request(
-        endPoint: Networking.EndPoint,
-        _ completion: @escaping (Result<Networking.NetworkResponse, Networking.NetworkError>) -> Void
-    ) {
+    func request(endPoint: Networking.EndPoint) -> AnyPublisher<Networking.NetworkResponse, Networking.NetworkError> {
         if let request = endPoint.createRequest() {
-            completion(.success(.init(
+            let response = Networking.NetworkResponse(
                 data: Data(),
                 status: .okResponse,
                 response: .init(),
                 request: request
-            )))
+            )
+            return Just(response)
+                .setFailureType(to: Networking.NetworkError.self)
+                .eraseToAnyPublisher()
         } else {
-            completion(.failure(.unableToCreateURL))
+            return Fail(error: NetworkError.unableToCreateURL)
+                .eraseToAnyPublisher()
         }
     }
 }

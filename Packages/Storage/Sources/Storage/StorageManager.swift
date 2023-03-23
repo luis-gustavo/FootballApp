@@ -82,7 +82,7 @@ extension StorageManager: Storage {
     public func createUpcomingMatches(object: [UpcomingMatch]) -> AnyPublisher<Bool, Error> {
         let matches = object
         for match in matches {
-            let teamEntity = PreviousMatchEntity(context: mainContext)
+            let teamEntity = UpcomingMatchEntity(context: mainContext)
             teamEntity.home = match.home
             teamEntity.away = match.away
             teamEntity.matchDescription = match.description

@@ -8,6 +8,5 @@
 import Foundation
 
 enum MatchesViewModelError: Error, Equatable {
-    case teamsFetch
-    case matchesFetch
+    case dataFetch
 }

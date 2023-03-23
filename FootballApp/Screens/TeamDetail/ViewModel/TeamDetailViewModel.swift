@@ -29,7 +29,7 @@ final class TeamDetailViewModel {
 extension TeamDetailViewModel {
     func fetchImage() {
         guard let logoImageUrl else { return }
-        let completionHandler: (Subscribers.Completion<Error>) -> Void = { [weak self] completion in
+        let completionHandler: (Subscribers.Completion<Error>) -> Void = { completion in
             switch completion {
             case.finished:
                 break

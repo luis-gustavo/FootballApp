@@ -17,7 +17,7 @@ public protocol UpcomingMatchObjectType {
 public struct UpcomingMatchObject: UpcomingMatchObjectType {
 
     // MARK: - Properties
-    public static var identifier: String = "UpcomingMatchEntity"
+    public static var identifier = "UpcomingMatchEntity"
     var _managedObject: NSManagedObject!
     public var managedObject: NSManagedObject {
         get {

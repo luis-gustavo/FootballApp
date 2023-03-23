@@ -28,8 +28,6 @@ final class MatchesViewController: UIViewController {
         return view
     }()
 
-    private let appDelegate = UIApplication.shared.delegate as! AppDelegate
-
     // MARK: - Inits
     init(viewModel: MatchesViewModel) {
         self.viewModel = viewModel
@@ -49,9 +47,9 @@ final class MatchesViewController: UIViewController {
     // MARK: - viewDidLoad
     override func viewDidLoad() {
         super.viewDidLoad()
+        setUpBindings()
         viewModel.fetchData()
         configureDataSource()
-        setUpBindings()
     }
 }
 
@@ -59,23 +57,22 @@ final class MatchesViewController: UIViewController {
 private extension MatchesViewController {
     private func setUpBindings() {
         func bindViewModelToView() {
-            viewModel.matchesChanged
-                .sink { [weak self] _ in
+            viewModel.dataChanged
+                .receive(on: RunLoop.main)
+                .sink(receiveValue: { [weak self] _ in
                     self?.updateSections()
-                }
+                })
                 .store(in: &bindings)
 
             let stateValueHandler: (MatchesViewModelState) -> Void = { [weak self] state in
                 switch state {
-                case .loadingTeams, .loadingMatches:
+                case .loading:
                     self?.matchesView.startLoading()
                 case .finishedLoading:
                     self?.matchesView.stopLoading()
                 case let .error(error):
-                    print(error.localizedDescription)
                     self?.matchesView.stopLoading()
                     self?.viewModel.showError(error)
-                    break
                 }
             }
 

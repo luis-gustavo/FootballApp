@@ -8,7 +8,7 @@
 import UIKit
 
 extension UIViewController {
-    func showAlert(with title: String, message: String) {
+    func showAlert(with title: String, message: String, animated: Bool = true) {
         let alertController = UIAlertController(
             title: title,
             message: message,
@@ -18,6 +18,6 @@ extension UIViewController {
             self?.dismiss(animated: true, completion: nil)
         }
         alertController.addAction(alertAction)
-        present(alertController, animated: true, completion: nil)
+        present(alertController, animated: animated, completion: nil)
     }
 }

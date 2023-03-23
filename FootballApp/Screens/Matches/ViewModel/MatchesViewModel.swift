@@ -27,23 +27,11 @@ final class MatchesViewModel {
         return upcomingMatches
             .filter { $0.home.lowercased().contains(lowerCasedSearchText) || $0.away.lowercased().contains(lowerCasedSearchText) }
     }
-    @Published private(set) var teams: [Team] = [] {
-        didSet {
-            print("teams: \(teams.count)")
-        }
-    }
-    @Published private(set) var state: MatchesViewModelState = .loadingTeams
-    private(set) var matchesChanged = PassthroughSubject<Void, Never>()
-    private var previousMatches: [PreviousMatch] = [] {
-        didSet {
-            print("previous matches: \(previousMatches.count)")
-        }
-    }
-    private var upcomingMatches: [UpcomingMatch] = [] {
-        didSet {
-            print("upcoming matches: \(previousMatches.count)")
-        }
-    }
+    private(set) var dataChanged = PassthroughSubject<Void, Never>()
+    @Published private(set) var teams: [Team] = []
+    @Published private(set) var state: MatchesViewModelState = .loading
+    private var previousMatches: [PreviousMatch] = []
+    private var upcomingMatches: [UpcomingMatch] = []
     private let storage: Storage = DIContainer.make(for: Storage.self)
     private let teamProvider: TeamProviderProtocol
     private let matchesProvider: MatchProviderProtocol
@@ -51,14 +39,14 @@ final class MatchesViewModel {
     private var bindings = Set<AnyCancellable>()
     private var searchText = "" {
         didSet {
-            matchesChanged.send()
+            dataChanged.send()
         }
     }
 
     // MARK: - Inits
     init(
-        teamProvider: TeamProviderProtocol = TeamProvider(),
-        matchesProvider: MatchProviderProtocol = MatchProvider(),
+        teamProvider: TeamProviderProtocol,
+        matchesProvider: MatchProviderProtocol,
         router: MatchesRouterProtocol
     ) {
         self.teamProvider = teamProvider
@@ -78,7 +66,7 @@ extension MatchesViewModel {
     }
 
     func fetchData() {
-        fetchTeams()
+        tryToFetchDataFromServer()
     }
 
     func cellViewModel(for match: Item) -> MatchCellViewModel {
@@ -99,6 +87,7 @@ extension MatchesViewModel {
             showHighlight: match.showHighlight
         )
         viewModel.tappedWatchHighlight
+            .combineLatest(viewModel.tappedTeamDetail)
             .sink(receiveValue: { [weak self] _ in
                 switch match {
                 case let .previous(match):
@@ -127,7 +116,7 @@ private extension MatchesViewModel {
     }
 
     func showTeamDetail(teamName: String) {
-        guard let team = teams.first(where: { $0.name == teamName }) else { return }
+        guard let team = teams.first(where: { $0.name.trimmingCharacters(in: .whitespacesAndNewlines) == teamName.trimmingCharacters(in: .whitespacesAndNewlines) }) else { return }
         router.showTeamDetail(team: team)
     }
 
@@ -147,123 +136,70 @@ private extension MatchesViewModel {
         return (home: homeTeamImageUrl, away: awayTeamImageUrl)
     }
 
-    func tryToFetchTeamsLocally() {
-        storage.fetch(entityName: TeamObject.identifier)
-            .sink(receiveCompletion: { [weak self] result in
-                switch result {
-                case .failure:
-                    self?.state = .error(.teamsFetch)
-                case .finished:
-                    self?.fetchMatches()
-                }
-            }, receiveValue: { [weak self] objects in
-                self?.teams = objects?.compactMap { TeamObject(managedObject: $0).team } ?? []
+    func saveDataLocally(teams: [Team], previousMatches: [PreviousMatch], upcomingMatches: [UpcomingMatch]) {
+        storage.createTeams(object: teams)
+            .combineLatest(
+                storage.createPreviousMatches(object: previousMatches),
+                storage.createUpcomingMatches(object: upcomingMatches)
+            )
+            .receive(on: RunLoop.main)
+            .sink(receiveCompletion: { _ in }, receiveValue: { output in
+                print("saved teams locally: \(output.0)")
+                print("saved previous matches locally: \(output.1)")
+                print("saved upcoming matches locally: \(output.2)")
             })
             .store(in: &bindings)
     }
 
-    func fetchTeams() {
-        state = .loadingTeams
+    func tryToFetchDataFromServer() {
+        state = .loading
 
-        let fetchCompletionHandler: (Subscribers.Completion<NetworkError>) -> Void = { [weak self] completion in
+        let completionHandler: (Subscribers.Completion<NetworkError>) -> Void = { [weak self] completion in
             switch completion {
             case .failure:
-                self?.tryToFetchTeamsLocally()
-            case .finished:
-                self?.fetchMatches()
-            }
-        }
-
-        let fetchValueHandler: ([Team]) -> Void = { [weak self] teams in
-            self?.teams = teams
-            self?.saveTeamsLocally(teams: teams)
-        }
-
-        teamProvider.getTeams()
-            .sink(receiveCompletion: fetchCompletionHandler, receiveValue: fetchValueHandler)
-            .store(in: &bindings)
-    }
-
-    func tryToFetchUpcomingMatchesLocally() {
-        storage.fetch(entityName: UpcomingMatchObject.identifier)
-            .receive(on: RunLoop.main)
-            .sink(receiveCompletion: { [weak self] result in
-                switch result {
-                case .failure:
-                    self?.state = .error(.matchesFetch)
-                case .finished:
-                    self?.state = .finishedLoading
-                }
-            }, receiveValue: { [weak self] objects in
-                self?.upcomingMatches = objects?.compactMap { UpcomingMatchObject(managedObject: $0).match } ?? []
-                self?.matchesChanged.send()
-            })
-            .store(in: &bindings)
-    }
-
-    func tryToFetchPreviousMatchesLocally() {
-        storage.fetch(entityName: PreviousMatchObject.identifier)
-            .receive(on: RunLoop.main)
-            .sink(receiveCompletion: { [weak self] result in
-                switch result {
-                case .failure:
-                    self?.state = .error(.matchesFetch)
-                case .finished:
-                    self?.tryToFetchUpcomingMatchesLocally()
-                }
-            }, receiveValue: { [weak self] objects in
-                self?.previousMatches = objects?.compactMap { PreviousMatchObject(managedObject: $0).match } ?? []
-            })
-            .store(in: &bindings)
-    }
-
-    func fetchMatches() {
-        state = .loadingMatches
-
-        let fetchCompletionHandler: (Subscribers.Completion<NetworkError>) -> Void = { [weak self] completion in
-            switch completion {
-            case .failure:
-                self?.tryToFetchPreviousMatchesLocally()
+                self?.tryToFetchDataLocally()
             case .finished:
                 self?.state = .finishedLoading
             }
         }
 
-        let fetchValueHandler: (Matches) -> Void = { [weak self] matches in
+        let valueHandler: ([Team], Matches) -> Void = { [weak self] teams, matches in
+            self?.teams = teams
             self?.previousMatches = matches.previous
             self?.upcomingMatches = matches.upcoming
-            self?.matchesChanged.send()
-            self?.saveMatchesLocally(matches: matches)
+            self?.saveDataLocally(
+                teams: teams,
+                previousMatches: matches.previous,
+                upcomingMatches: matches.upcoming
+            )
+            self?.dataChanged.send()
         }
 
-        matchesProvider.getMatches()
-            .sink(receiveCompletion: fetchCompletionHandler, receiveValue: fetchValueHandler)
+        teamProvider.getTeams()
+            .combineLatest(matchesProvider.getMatches())
+            .sink(receiveCompletion: completionHandler, receiveValue: valueHandler)
             .store(in: &bindings)
     }
 
-    func saveTeamsLocally(teams: [Team]) {
-        storage.createTeams(object: teams)
+    func tryToFetchDataLocally() {
+        storage.fetch(entityName: TeamObject.identifier)
+            .combineLatest(
+                storage.fetch(entityName: PreviousMatchObject.identifier),
+                storage.fetch(entityName: UpcomingMatchObject.identifier)
+            )
             .receive(on: RunLoop.main)
-            .sink(receiveCompletion: { _ in },
-                  receiveValue: { output in
-                print("saved teams locally: \(output)")
-            })
-            .store(in: &bindings)
-    }
-
-    func saveMatchesLocally(matches: Matches) {
-        storage.createPreviousMatches(object: matches.previous)
-            .receive(on: RunLoop.main)
-            .sink(receiveCompletion: { _ in },
-                  receiveValue: { output in
-                print("saved previous matches locally: \(output)")
-            })
-            .store(in: &bindings)
-        storage.createUpcomingMatches(object: matches.upcoming)
-            .receive(on: RunLoop.main)
-            .sink(receiveCompletion: { _ in },
-                  receiveValue: { output in
-                print("saved upcoming matches locally: \(output)")
+            .sink(receiveCompletion: { [weak self] completion in
+                switch completion {
+                case .failure:
+                    self?.state = .error(.dataFetch)
+                case .finished:
+                    self?.state = .finishedLoading
+                }
+            }, receiveValue: { [weak self] output in
+                self?.teams = output.0?.compactMap { TeamObject(managedObject: $0).team } ?? []
+                self?.previousMatches = output.1?.compactMap { PreviousMatchObject(managedObject: $0).match } ?? []
+                self?.upcomingMatches = output.2?.compactMap { UpcomingMatchObject(managedObject: $0).match } ?? []
+                self?.dataChanged.send()
             })
             .store(in: &bindings)
     }

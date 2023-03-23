@@ -116,6 +116,8 @@ private extension TeamView {
                 .receive(on: RunLoop.main)
                 .sink { [weak self] data in
                     guard let data = data else { return }
+                    print("data: \(data)")
+                    print(self)
                     self?.imageView.image = UIImage(data: data)
                 }.store(in: &bindings)
 

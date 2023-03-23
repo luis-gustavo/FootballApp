@@ -13,6 +13,7 @@ protocol MatchesRouterProtocol {
     var rootViewController: UINavigationController { get set }
     func showTeamDetail(team: Team)
     func showHighlight(from url: URL)
+    func showError(_ error: Error)
 }
 
 extension MatchesRouterProtocol {

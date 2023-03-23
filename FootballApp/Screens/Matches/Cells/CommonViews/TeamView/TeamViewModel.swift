@@ -49,7 +49,10 @@ extension TeamViewModel {
     }
 
     func fetchImage() {
+        print("1")
         guard let url = imageUrl else { return }
+        print("2")
+        print(type(of: imageLoader))
         state = .loading
 
         let completionHandler: (Subscribers.Completion<Error>) -> Void = { [weak self] completion in

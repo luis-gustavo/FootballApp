@@ -8,8 +8,7 @@
 import Foundation
 
 enum MatchesViewModelState {
-    case loadingTeams
-    case loadingMatches
+    case loading
     case finishedLoading
     case error(MatchesViewModelError)
 }

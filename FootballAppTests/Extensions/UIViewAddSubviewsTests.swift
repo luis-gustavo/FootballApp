@@ -29,5 +29,4 @@ final class UIViewAddSubviewsTests: XCTestCase {
         XCTAssertEqual(subview1.translatesAutoresizingMaskIntoConstraints, false)
         XCTAssertEqual(subview2.translatesAutoresizingMaskIntoConstraints, false)
     }
-
 }

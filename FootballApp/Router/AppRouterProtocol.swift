@@ -15,7 +15,12 @@ protocol AppRouterProtocol: MatchesRouterProtocol {
 extension AppRouterProtocol {
     func showMatches() {
         rootViewController.navigationBar.prefersLargeTitles = true
-        let viewController = MatchesViewController(viewModel: .init(router: self))
+        let viewModel = MatchesViewModel(
+            teamProvider: TeamProvider(),
+            matchesProvider: MatchProvider(),
+            router: self
+        )
+        let viewController = MatchesViewController(viewModel: viewModel)
         viewController.navigationItem.largeTitleDisplayMode = .automatic
         rootViewController.setViewControllers([viewController], animated: true)
     }

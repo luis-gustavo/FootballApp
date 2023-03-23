@@ -18,7 +18,8 @@ extension AppRouterProtocol {
         let viewModel = MatchesViewModel(
             teamProvider: TeamProvider(),
             matchesProvider: MatchProvider(),
-            router: self
+            router: self,
+            fileManagerProvider: FileManagerProvider.shared
         )
         let viewController = MatchesViewController(viewModel: viewModel)
         viewController.navigationItem.largeTitleDisplayMode = .automatic

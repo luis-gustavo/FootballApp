@@ -26,10 +26,12 @@ extension MatchesRouterProtocol {
     }
 
     func showHighlight(from url: URL) {
-        let playerViewController = AVPlayerViewController()
-        playerViewController.player = AVPlayer(url: url)
-        rootViewController.pushViewController(playerViewController, animated: true)
-        playerViewController.player?.play()
+        DispatchQueue.main.async {
+            let playerViewController = AVPlayerViewController()
+            playerViewController.player = AVPlayer(url: url)
+            self.rootViewController.pushViewController(playerViewController, animated: true)
+            playerViewController.player?.play()
+        }
     }
 
     func showError(_ error: Error) {

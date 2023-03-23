@@ -25,7 +25,8 @@ final class MatchesViewControllerTests: XCTestCase {
         viewModel = .init(
             teamProvider: mockTeamProvider,
             matchesProvider: mockMatchProvider,
-            router: mockRouter
+            router: mockRouter,
+            fileManagerProvider: MockFileManagerProvider()
         )
         sut = .init(viewModel: viewModel)
         sut.loadViewIfNeeded()

@@ -41,6 +41,7 @@ final class MatchesViewModel {
     private let teamProvider: TeamProviderProtocol
     private let matchesProvider: MatchProviderProtocol
     private let router: MatchesRouterProtocol
+    private let fileManagerProvider: FileManagerProviderProtocol
     private var bindings = Set<AnyCancellable>()
     private var searchText = "" {
         didSet {
@@ -52,11 +53,13 @@ final class MatchesViewModel {
     init(
         teamProvider: TeamProviderProtocol,
         matchesProvider: MatchProviderProtocol,
-        router: MatchesRouterProtocol
+        router: MatchesRouterProtocol,
+        fileManagerProvider: FileManagerProviderProtocol
     ) {
         self.teamProvider = teamProvider
         self.matchesProvider = matchesProvider
         self.router = router
+        self.fileManagerProvider = fileManagerProvider
     }
 }
 
@@ -92,7 +95,6 @@ extension MatchesViewModel {
             showHighlight: match.showHighlight
         )
         viewModel.tappedWatchHighlight
-            .combineLatest(viewModel.tappedTeamDetail)
             .sink(receiveValue: { [weak self] _ in
                 switch match {
                 case let .previous(match):
@@ -116,8 +118,12 @@ extension MatchesViewModel {
 // MARK: - Private methods
 private extension MatchesViewModel {
     func showHighlight(match: PreviousMatch) {
-        guard let url = match.highlightUrl else { return }
-        router.showHighlight(from: url)
+        if fileManagerProvider.fileExists(name: match.highlights),
+           let localUrl = fileManagerProvider.retrieveUrlFromDocuments(name: match.highlights) {
+            router.showHighlight(from: localUrl)
+        } else if let remoteUrl = match.highlightUrl {
+            router.showHighlight(from: remoteUrl)
+        }
     }
 
     func showTeamDetail(teamName: String) {
@@ -160,6 +166,12 @@ private extension MatchesViewModel {
                 print("saved upcoming matches locally: \(output.2)")
             })
             .store(in: &bindings)
+        DispatchQueue.global(qos: .background).async { [weak self] in
+            guard let self else { return }
+            for match in previousMatches where !self.fileManagerProvider.fileExists(name: match.highlights) {
+                self.fileManagerProvider.saveToDocuments(name: match.highlights)
+            }
+        }
     }
 
     func tryToFetchDataFromServer() {

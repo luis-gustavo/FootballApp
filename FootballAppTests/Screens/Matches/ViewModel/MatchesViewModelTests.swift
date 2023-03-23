@@ -23,7 +23,8 @@ final class MatchesViewModelTests: XCTestCase {
         sut = .init(
             teamProvider: mockTeamProvider,
             matchesProvider: mockMatchProvider,
-            router: mockRouter
+            router: mockRouter,
+            fileManagerProvider: MockFileManagerProvider()
         )
     }
 

@@ -1,6 +1,6 @@
 # FootballApp
 
-Football app is an iOS app written in Swift that shows matches (previous and upcoming), team details and match highlights.
+FootballApp is an iOS app written in Swift that shows matches (previous and upcoming), team details and match highlights.
 
 * Display Previous and Upcoming Matches:
 
@@ -74,10 +74,10 @@ So far, 39 automated tests (unit tests and snapshot tests) have been created for
 
 ## Dependency Manager
 
-The Swift Package Manager was used to manage the project's dependencies, allowing code reuse. This project has only one dependency (only for the `Test Target`):
+The Swift Package Manager was used to manage the project's dependencies, allowing code reuse. This project has only one dependency (only for the `FootballAppTests` target):
 
 * [SnapshotTesting](https://github.com/pointfreeco/swift-snapshot-testing): Framework used to perform snapshot tests;
 
 ## Challenge
 
-Although I'm experienced with UIKit, before this project, I barely had experience with Combine and actual no experience using UICollectionViewDiffableDataSource to present lists. The way I've tackled this challenged was: reading the documentation to understand why these frameworks/approachs exist and what are their benefits. But, of course, I couln't read all the documentation in time (and that probably wouldn't be a good way to spend my time), so I've decided to read tutorials and then I applied what I've learned on a smaller project. After that it was a matter of adapting what I had applied on the smaller project on this projetc and that took couple of tries until I fully understood it and it was working. I was able to learn a lot about reactive programming from this experience and I really liked the way is suits well MVVM.
+Although I'm experienced with UIKit, before this project, I barely had experience with Combine and actual no experience using `UICollectionViewDiffableDataSource` to present lists. The way I've tackled this challenged was: reading the documentation to understand why these frameworks/approachs exist and what are their benefits. But, of course, I couln't read all the documentation in time (and that probably wouldn't be a good way to spend my time), so I've decided to read tutorials and then I applied what I've learned on a smaller project. After that it was a matter of adapting what I had applied on the smaller project on this projetc and that took couple of tries until I fully understood it and it was working. I was able to learn a lot about reactive programming from this experience and I really liked the way is suits well MVVM.
